@@ -2,8 +2,9 @@
  * bst.h
  *
  *  Created on: 12/10/2026
- *      Author: Gerardo Silva Esqueda 
+ *      Author: Gerardo Silva Esqueda
  */
+
 #ifndef BST_H
 #define BST_H
 
@@ -12,13 +13,15 @@
 
 using namespace std;
 
-template <class T> class BST;
+template <class T>
+class BST;
 
-template <class T> 
+template <class T>
 class TreeNode {
 private:
     T value;
-    TreeNode *left, *right;
+    TreeNode<T>* left;
+    TreeNode<T>* right;
 
 public:
     TreeNode(T);
@@ -34,21 +37,21 @@ public:
 };
 
 template <class T>
-TreeNode<T>::TreeNode(T val) : value(val), left(0), right(0) {}
+TreeNode<T>::TreeNode(T dato) : value(dato), left(0), right(0) {}
 
 template <class T>
-void TreeNode<T>::add(T val) {
-    if (val < value) {
+void TreeNode<T>::add(T dato) {
+    if (dato < value) {
         if (left != 0) {
-            left->add(val);
+            left->add(dato);
         } else {
-            left = new TreeNode<T> (val);
+            left = new TreeNode<T>(dato);
         }
     } else {
         if (right != 0) {
-            right->add(val);
+            right->add(dato);
         } else {
-            right = new TreeNode<T>(val);
+            right = new TreeNode<T>(dato);
         }
     }
 }
@@ -59,7 +62,7 @@ void TreeNode<T>::removeChilds() {
         left->removeChilds();
         delete left;
         left = 0;
-    } 
+    }
     if (right != 0) {
         right->removeChilds();
         delete right;
@@ -68,76 +71,75 @@ void TreeNode<T>::removeChilds() {
 }
 
 template <class T>
-void TreeNode<T>::preorder(stringstream& aux) const {
-    if (aux.tellp() != 1) {
-        aux << " ";
+void TreeNode<T>::preorder(stringstream& salida) const {
+    if (salida.tellp() != 1) {
+        salida << " ";
     }
-    aux  << value;
+    salida << value;
     if (left != 0) {
-        left->preorder(aux);
+        left->preorder(salida);
     }
     if (right != 0) {
-        right->preorder(aux);
+        right->preorder(salida);
     }
 }
 
 template <class T>
-void TreeNode<T>::inorder(stringstream& aux) const {
+void TreeNode<T>::inorder(stringstream& salida) const {
     if (left != 0) {
-        left->inorder(aux);
+        left->inorder(salida);
     }
-    if (aux.tellp() != 1) {
-        aux << " ";
+    if (salida.tellp() != 1) {
+        salida << " ";
     }
-    aux << value;
+    salida << value;
     if (right != 0) {
-        right->inorder(aux);
+        right->inorder(salida);
     }
 }
 
 template <class T>
-void TreeNode<T>::postorder(stringstream& aux) const {
+void TreeNode<T>::postorder(stringstream& salida) const {
     if (left != 0) {
-        left->postorder(aux);
+        left->postorder(salida);
     }
     if (right != 0) {
-        right->postorder(aux);
+        right->postorder(salida);
     }
-    if (aux.tellp() != 1) {
-        aux << " ";
+    if (salida.tellp() != 1) {
+        salida << " ";
     }
-    aux << value;
+    salida << value;
 }
 
 template <class T>
-void TreeNode<T>::level_by_level(stringstream& aux, int level) const {
-    if (level == 1) {
-        if (aux.tellp() != 1) {
-            aux << " ";
+void TreeNode<T>::level_by_level(stringstream& salida, int nivel) const {
+    if (nivel == 1) {
+        if (salida.tellp() != 1) {
+            salida << " ";
         }
-        aux << value;
+        salida << value;
     } else {
         if (left != 0) {
-            left->level_by_level(aux, level - 1);
+            left->level_by_level(salida, nivel - 1);
         }
         if (right != 0) {
-            right->level_by_level(aux, level - 1);
+            right->level_by_level(salida, nivel - 1);
         }
     }
 }
-
 
 template <class T>
 int TreeNode<T>::height() const {
-    int lheight = 0, rheight = 0;
-
+    int alturaIzquierda = 0;
+    int alturaDerecha = 0;
     if (left != 0) {
-        lheight = left->height();
+        alturaIzquierda = left->height();
     }
     if (right != 0) {
-        rheight = right->height();
+        alturaDerecha = right->height();
     }
-    return 1 + (lheight > rheight ? lheight : rheight);
+    return 1 + (alturaIzquierda > alturaDerecha ? alturaIzquierda : alturaDerecha);
 }
 
 template <class T>
@@ -148,6 +150,7 @@ private:
 public:
     BST();
     ~BST();
+
     void add(T);
     string visit() const;
     int height() const;
@@ -168,87 +171,88 @@ BST<T>::~BST() {
 }
 
 template <class T>
-void BST<T>::add(T val) {
+void BST<T>::add(T dato) {
     if (root != 0) {
-        root->add(val);
+        root->add(dato);
     } else {
-        root = new TreeNode<T>(val);
+        root = new TreeNode<T>(dato);
     }
 }
 
 template <class T>
 string BST<T>::visit() const {
-    stringstream pre, ino, post, levels;
-    int h = height();
+    stringstream preorden, inorden, postorden, porNiveles;
+    int altura = height();
 
-    pre << "[";
-    ino << "[";
-    post << "[";
-    levels << "[";
+    preorden << "[";
+    inorden << "[";
+    postorden << "[";
+    porNiveles << "[";
     if (root != 0) {
-        root->preorder(pre);
-        root->inorder(ino);
-        root->postorder(post);
-
-        for (int i = 1; i <= h; i++) {
-            root->level_by_level(levels, i);
+        root->preorder(preorden);
+        root->inorder(inorden);
+        root->postorder(postorden);
+        for (int nivel = 1; nivel <= altura; nivel++) {
+            root->level_by_level(porNiveles, nivel);
         }
     }
-    pre << "]";
-    ino << "]";
-    post << "]";
-    levels << "]";
+    preorden << "]";
+    inorden << "]";
+    postorden << "]";
+    porNiveles << "]";
 
-    return pre.str() + "\n" + ino.str() + "\n" + post.str() + "\n" + levels.str();
+    return preorden.str() + "\n" + inorden.str() + "\n" +
+           postorden.str() + "\n" + porNiveles.str();
 }
 
 template <class T>
 int BST<T>::height() const {
-    if (root == 0) return 0;
+    if (root == 0) {
+        return 0;
+    }
     return root->height();
 }
 
 template <class T>
-string BST<T>::ancestors(T val) const {
-    stringstream aux;
+string BST<T>::ancestors(T dato) const {
+    stringstream salida;
     TreeNode<T>* actual = root;
 
-    aux << "[";
-    while (actual != 0 && actual->value != val) {
-		if (aux.tellp() != 1) {
-			aux << " ";
-		}
-		aux << actual->value;
-		if (val < actual->value) {
-			actual = actual->left;
-		} else {
-			actual = actual->right;
-		}
-	}
-	if (actual == 0) {
-		return "[]";
-	}
-	aux << "]";
-	return aux.str();
+    salida << "[";
+    while (actual != 0 && actual->value != dato) {
+        if (salida.tellp() != 1) {
+            salida << " ";
+        }
+        salida << actual->value;
+        if (dato < actual->value) {
+            actual = actual->left;
+        } else {
+            actual = actual->right;
+        }
+    }
+    if (actual == 0) {
+        return "[]";
+    }
+    salida << "]";
+    return salida.str();
 }
 
 template <class T>
-int BST<T>::whatlevelamI(T val) const {
-	TreeNode<T> *actual = root;
-	int level = 1;
-
-	while (actual != 0) {
-		if (actual->value == val) {
-			return level;
-		}
-		if (val < actual->value) {
-			actual = actual->left;
-		} else {
-			actual = actual->right;
-		}
-		level++;
-	}
-	return 0;
+int BST<T>::whatlevelamI(T dato) const {
+    TreeNode<T>* actual = root;
+    int nivel = 1;
+    while (actual != 0) {
+        if (actual->value == dato) {
+            return nivel;
+        }
+        if (dato < actual->value) {
+            actual = actual->left;
+        } else {
+            actual = actual->right;
+        }
+        nivel++;
+    }
+    return 0;
 }
 
 #endif

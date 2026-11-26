@@ -10,11 +10,11 @@
 
 #include <string>
 #include <sstream>
-#include <string>
 
 using namespace std;
 
-template <class T> class DList; 
+template <class T>
+class DList;
 
 template <class T>
 class DLink {
@@ -31,13 +31,15 @@ private:
 };
 
 template <class T>
-DLink<T>::DLink(T val) : value(val), previous(0), next(0) {}
+DLink<T>::DLink(T dato) : value(dato), previous(0), next(0) {}
 
 template <class T>
-DLink<T>::DLink(T val, DLink<T>* prev, DLink<T>* nxt) : value(val), previous(prev), next(nxt) {}
+DLink<T>::DLink(T dato, DLink<T>* anterior, DLink<T>* siguiente)
+    : value(dato), previous(anterior), next(siguiente) {}
 
 template <class T>
-DLink<T>::DLink(const DLink<T>& source) : value(source.value), previous(source.previous), next(source.next) {}
+DLink<T>::DLink(const DLink<T>& origen)
+    : value(origen.value), previous(origen.previous), next(origen.next) {}
 
 template <class T>
 class DList {
@@ -57,8 +59,8 @@ public:
     void clear();
 
 private:
-    DLink<T> *head;
-    DLink<T> *tail;
+    DLink<T>* head;
+    DLink<T>* tail;
     int size;
 };
 
@@ -66,20 +68,22 @@ template <class T>
 DList<T>::DList() : head(0), tail(0), size(0) {}
 
 template <class T>
-DList<T>::~DList() {clear();}
+DList<T>::~DList() {
+    clear();
+}
 
 template <class T>
-bool DList<T>::empty() const {return (head == 0);}
+bool DList<T>::empty() const {
+    return head == 0;
+}
 
 template <class T>
 void DList<T>::clear() {
-    DLink<T> *p = head;
-    DLink<T> *q;
-
-    while (p != 0) {
-        q = p->next;
-        delete p;
-        p = q;
+    DLink<T>* actual = head;
+    while (actual != 0) {
+        DLink<T>* siguiente = actual->next;
+        delete actual;
+        actual = siguiente;
     }
 
     head = 0;
@@ -88,121 +92,121 @@ void DList<T>::clear() {
 }
 
 template <class T>
-void DList<T>::insertion(T val) {
-    DLink<T> *newLink = new DLink<T>(val);
-
+void DList<T>::insertion(T dato) {
+    DLink<T>* nuevo = new DLink<T>(dato);
     if (empty()) {
-        head = newLink;
-        tail = newLink;
+        head = nuevo;
+        tail = nuevo;
     } else {
-        tail->next = newLink;
-        newLink->previous = tail;
-        tail = newLink;
+        tail->next = nuevo;
+        nuevo->previous = tail;
+        tail = nuevo;
     }
     size++;
 }
 
 template <class T>
-int DList<T>::search(T val) const {
-    DLink<T> *p = head;
-    int index = 0;
-
-    while (p != 0) {
-        if (p->value == val) {return index;}
-        p = p->next;
-        index++;
+int DList<T>::search(T dato) const {
+    DLink<T>* actual = head;
+    int indice = 0;
+    while (actual != 0) {
+        if (actual->value == dato) {
+            return indice;
+        }
+        actual = actual->next;
+        indice++;
     }
     return -1;
 }
 
 template <class T>
-bool DList<T>::update(int index, T val) {
-    if (index < 0 || index >= size) {return false;}
-    DLink<T> *p = head;
-    int pos = 0;
-
-    while(pos != index) {
-        p = p->next;
-        pos++;
+bool DList<T>::update(int indice, T dato) {
+    if (indice < 0 || indice >= size) {
+        return false;
     }
-    p->value = val;
+
+    DLink<T>* actual = head;
+    int posicion = 0;
+    while (posicion != indice) {
+        actual = actual->next;
+        posicion++;
+    }
+    actual->value = dato;
     return true;
 }
 
 template <class T>
-T DList<T>::deleteAt(int index) {
-    if (index < 0 || index >= size) {
+T DList<T>::deleteAt(int indice) {
+    if (indice < 0 || indice >= size) {
         return T();
     }
-    DLink<T> *p;
-    T val;
 
-    if (index == 0) {
-		p = head;
-		val = p->value;
-		if (head == tail) {
-			head = 0;
-			tail = 0;
-		} else {
-			head = head->next;
-			head->previous = 0;
-		}
-		delete p;
-	} else if (index == size - 1) {
-		p = tail;
-		val = p->value;
-		tail = tail->previous;
-		tail->next = 0;
-		delete p;
-	} else {
-		p = head;
-		int pos = 0;
-		while (pos != index) {
-			p = p->next;
-			pos++;
-		}
-		val = p->value;
-		p->previous->next = p->next;
-		p->next->previous = p->previous;
-		delete p;
-	}
+    DLink<T>* eliminado;
+    T dato;
+    if (indice == 0) {
+        eliminado = head;
+        dato = eliminado->value;
+        if (head == tail) {
+            head = 0;
+            tail = 0;
+        } else {
+            head = head->next;
+            head->previous = 0;
+        }
+    } else if (indice == size - 1) {
+        eliminado = tail;
+        dato = eliminado->value;
+        tail = tail->previous;
+        tail->next = 0;
+    } else {
+        eliminado = head;
+        int posicion = 0;
+        while (posicion != indice) {
+            eliminado = eliminado->next;
+            posicion++;
+        }
+        dato = eliminado->value;
+        eliminado->previous->next = eliminado->next;
+        eliminado->next->previous = eliminado->previous;
+    }
 
-	size--;
-	return val;
+    delete eliminado;
+    size--;
+    return dato;
 }
 
 template <class T>
 string DList<T>::toStringForward() const {
-	std::stringstream aux;
-	DLink<T> *p = head;
+    stringstream salida;
+    DLink<T>* actual = head;
 
-	aux << "[";
-	while (p != 0) {
-		aux << p->value;
-		if (p->next != 0) {
-			aux << ", ";
-		}
-		p = p->next;
-	}
-	aux << "]";
-	return aux.str();
+    salida << "[";
+    while (actual != 0) {
+        salida << actual->value;
+        if (actual->next != 0) {
+            salida << ", ";
+        }
+        actual = actual->next;
+    }
+    salida << "]";
+    return salida.str();
 }
 
 template <class T>
 string DList<T>::toStringBackward() const {
-	std::stringstream aux;
-	DLink<T> *p = tail;
+    stringstream salida;
+    DLink<T>* actual = tail;
 
-	aux << "[";
-	while (p != 0) {
-		aux << p->value;
-		if (p->previous != 0) {
-			aux << ", ";
-		}
-		p = p->previous;
-	}
-	aux << "]";
-	return aux.str();
+    salida << "[";
+    while (actual != 0) {
+        salida << actual->value;
+        if (actual->previous != 0) {
+            salida << ", ";
+        }
+        actual = actual->previous;
+    }
+    salida << "]";
+    return salida.str();
 }
 
 #endif

@@ -8,19 +8,18 @@
 #ifndef SORTS_H
 #define SORTS_H
 
+#include <cstddef>
 #include <vector>
-#include <list>
 
 using namespace std;
 
 template <class T>
 class Sorts {
-
 private:
-    void swap(vector<T>&, int, int);
-    void copy_array(vector<T>&, vector<T>&, int, int);
-    void merge_array(vector<T>&, vector<T>&, int, int, int);
-    void merge_split(vector<T>&, vector<T>&, int, int);
+    void swap(vector<T>&, size_t, size_t);
+    void copy_array(vector<T>&, vector<T>&, size_t, size_t);
+    void merge_array(vector<T>&, vector<T>&, size_t, size_t, size_t);
+    void merge_split(vector<T>&, vector<T>&, size_t, size_t);
 
 public:
     vector<T> ordenaSeleccion(vector<T>&);
@@ -31,129 +30,124 @@ public:
 };
 
 template <class T>
-void Sorts<T>::swap(vector<T>&v, int i, int j){
-    T aux = v[i];
-    v[i] = v[j];
-    v[j] = aux;
+void Sorts<T>::swap(vector<T>& datos, size_t i, size_t j) {
+    T temporal = datos[i];
+    datos[i] = datos[j];
+    datos[j] = temporal;
 }
 
 template <class T>
-vector<T> Sorts<T>::ordenaSeleccion(vector<T> &prueba){
-    for (int i = 0; i < prueba.size() -1; i++) {
-        int min = i;
-        for (int j = i + 1; j < prueba.size(); j++) {
-            if (prueba[j] < prueba[min]){
-                min = j;
+vector<T> Sorts<T>::ordenaSeleccion(vector<T>& datos) {
+    for (size_t i = 0; i + 1 < datos.size(); i++) {
+        size_t indiceMenor = i;
+        for (size_t j = i + 1; j < datos.size(); j++) {
+            if (datos[j] < datos[indiceMenor]) {
+                indiceMenor = j;
             }
         }
-        if (min != i) {
-            swap(prueba, i, min);
+        if (indiceMenor != i) {
+            swap(datos, i, indiceMenor);
         }
     }
-    return prueba;
+    return datos;
 }
 
 template <class T>
-vector<T> Sorts<T>::ordenaBurbuja(vector<T> &prueba){
-    for (int i = prueba.size() - 1; i > 0; i--){
-        for (int j = 0; j < i; j++) {
-            if (prueba[j] > prueba[j + 1]) {
-                swap(prueba, j, j + 1);
+vector<T> Sorts<T>::ordenaBurbuja(vector<T>& datos) {
+    for (size_t limite = datos.size(); limite > 1; limite--) {
+        for (size_t j = 0; j + 1 < limite; j++) {
+            if (datos[j] > datos[j + 1]) {
+                swap(datos, j, j + 1);
             }
         }
     }
-    return prueba;
+    return datos;
 }
 
 template <class T>
-void Sorts<T>::copy_array(vector<T> &a, vector<T> &b, int low, int high) {
-    for (int i = low; i <= high; i++){
-        a[i] = b[i];
+void Sorts<T>::copy_array(vector<T>& datos, vector<T>& auxiliar,
+                          size_t inicio, size_t fin) {
+    for (size_t i = inicio; i <= fin; i++) {
+        datos[i] = auxiliar[i];
     }
 }
 
 template <class T>
-void Sorts<T>::merge_array(vector<T> &a, vector<T> &b, int low, int mid, int high) {
-    int i, j, k;
+void Sorts<T>::merge_array(vector<T>& datos, vector<T>& auxiliar,
+                           size_t inicio, size_t medio, size_t fin) {
+    size_t izq = inicio;
+    size_t der = medio + 1;
+    size_t pos = inicio;
 
-    i = low;
-    j = mid + 1;
-    k = low;
-
-    while(i <= mid && j <= high){
-        if (a[i] < a[j]){
-            b[k] = a[i];
-            i++;
+    while (izq <= medio && der <= fin) {
+        if (datos[izq] < datos[der]) {
+            auxiliar[pos] = datos[izq];
+            izq++;
         } else {
-            b[k] = a[j];
-            j++;
+            auxiliar[pos] = datos[der];
+            der++;
         }
-        k++;
+        pos++;
     }
-    if (i > mid) {
-        while(j <= high) {
-            b[k++] = a[j];
-            j++;
-        }
-    } else {
-        while (i <= mid) {
-            b[k++] = a[i];
-            i++;
-        }
+auxiliar[pos++] = datos[der++];
     }
 }
 
 template <class T>
-void Sorts<T>::merge_split(vector<T> &a, vector<T> &b, int low, int high) {
-    int mid;
-
-    if ((high - low) < 1) {
+void Sorts<T>::merge_split(vector<T>& datos, vector<T>& auxiliar,
+                           size_t inicio, size_t fin) {
+    if (inicio >= fin) {
         return;
     }
 
-    mid = (high + low) / 2;
-    merge_split(a, b, low, mid);
-    merge_split(a, b, mid + 1, high);
-    merge_array(a, b, low, mid, high);
-    copy_array(a, b, low, high);
+    size_t medio = inicio + (fin - inicio) / 2;
+    merge_split(datos, auxiliar, inicio, medio);
+    merge_split(datos, auxiliar, medio + 1, fin);
+    merge_array(datos, auxiliar, inicio, medio, fin);
+    copy_array(datos, auxiliar, inicio, fin);
 }
 
 template <class T>
-vector<T> Sorts<T>::ordenaMerge(vector<T> &prueba){
-    vector<T> tmp(prueba.size());
-    merge_split(prueba, tmp, 0, prueba.size() - 1);
-    return prueba;
+vector<T> Sorts<T>::ordenaMerge(vector<T>& datos) {
+    if (datos.size() > 1) {
+        vector<T> auxiliar(datos.size());
+        merge_split(datos, auxiliar, 0, datos.size() - 1);
+    }
+    return datos;
 }
 
 template <class T>
-int Sorts<T>::busqSecuencial(const vector<T> &prueba, int valor){
-    int val = -1;
-    for (int i = 0; i < prueba.size(); i++) {
-        if (prueba[i] == valor) {
-            val = i;
+int Sorts<T>::busqSecuencial(const vector<T>& datos, int valor) {
+    int posicion = -1;
+    for (size_t i = 0; i < datos.size(); i++) {
+        if (datos[i] == valor) {
+            posicion = static_cast<int>(i);
         }
     }
-    return val;
+    return posicion;
 }
 
 template <class T>
-int Sorts<T>::busqBinaria(const vector<T> &prueba, int valor) {
-    int low, high, mid;
-    low = 0;
-    high = prueba.size() - 1;
+int Sorts<T>::busqBinaria(const vector<T>& datos, int valor) {
+    ptrdiff_t inicio = 0;
+    ptrdiff_t fin = static_cast<ptrdiff_t>(datos.size()) - 1;
 
-    while (low <= high){
-        mid = low + (high - low) / 2;
-        
-        if (prueba[mid] == valor) {
-            return mid;
-        } else if (valor < prueba[mid]) {
-            high = mid - 1;
+    while (inicio <= fin) {
+        ptrdiff_t medio = inicio + (fin - inicio) / 2;
+        if (datos[medio] == valor) {
+            return static_cast<int>(medio);
+        } else if (valor < datos[medio]) {
+            fin = medio - 1;
         } else {
-            low = mid + 1;
+            inicio = medio + 1;
         }
     }
-    return - 1;
+    return -1;
 }
 
 #endif
+
+    while (izq <= medio) {
+        auxiliar[pos++] = datos[izq++];
+    }
+    while (der <= fin) {

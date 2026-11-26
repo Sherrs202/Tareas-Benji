@@ -2,39 +2,36 @@
  * list.h
  *
  *  Created on: 28/09/2026
- *      Author: Gerardo Silva Esqueda 
+ *      Author: Gerardo Silva Esqueda
  */
 
 #ifndef LIST_H
 #define LIST_H
 
 #include <sstream>
-#include <vector>
 #include <string>
-
 
 using namespace std;
 
-template <class T> class List;
+template <class T>
+class List;
 
-template <class T> 
-
-class Link{
-private: 
+template <class T>
+class Link {
+private:
     T value;
-    Link<T> *next;
+    Link<T>* next;
 
     Link(T);
     Link(T, Link<T>*);
 
     friend class List<T>;
-
 };
 
 template <class T>
-class List{
+class List {
 private:
-    Link<T> *head;
+    Link<T>* head;
     int size;
 
 public:
@@ -52,111 +49,118 @@ public:
 };
 
 template <class T>
-Link<T>::Link(T val) : value(val), next(0) {}
+Link<T>::Link(T dato) : value(dato), next(0) {}
 
 template <class T>
-Link<T>::Link(T val, Link* nxt) : value(val), next(nxt) {}
+Link<T>::Link(T dato, Link<T>* siguiente) : value(dato), next(siguiente) {}
 
 template <class T>
 List<T>::List() : head(0), size(0) {}
 
 template <class T>
-List<T>::~List() {clear();}
+List<T>::~List() {
+    clear();
+}
 
 template <class T>
-bool List<T>::empty() const {return head == 0;}
+bool List<T>::empty() const {
+    return head == 0;
+}
 
 template <class T>
-void List<T>::clear(){
-    Link<T> *p = head;
-    Link<T> *q;
-
-    while (p != 0) {
-        q = p->next;
-        delete p;
-        p = q;
+void List<T>::clear() {
+    Link<T>* actual = head;
+    while (actual != 0) {
+        Link<T>* siguiente = actual->next;
+        delete actual;
+        actual = siguiente;
     }
-
     head = 0;
     size = 0;
 }
 
 template <class T>
-void List<T>::insertion(T val){
-    Link<T> *newLink;
-    newLink = new Link<T>(val);
-
-    if (empty()){head = newLink;} else {
-        Link<T> *p = head;
-        while (p->next != 0) {p = p->next;}
-        p->next = newLink;
+void List<T>::insertion(T dato) {
+    Link<T>* nuevo = new Link<T>(dato);
+    if (empty()) {
+        head = nuevo;
+    } else {
+        Link<T>* actual = head;
+        while (actual->next != 0) {
+            actual = actual->next;
+        }
+        actual->next = nuevo;
     }
     size++;
 }
 
 template <class T>
-int List<T>::search(T val) const {
-    Link<T> *p = head;
-    int ind = 0;
-
-    while (p != 0) {
-        if (p->value == val) {return ind;}
-        p = p->next;
-        ind++;
+int List<T>::search(T dato) const {
+    const Link<T>* actual = head;
+    int indice = 0;
+    while (actual != 0) {
+        if (actual->value == dato) {
+            return indice;
+        }
+        actual = actual->next;
+        indice++;
     }
     return -1;
 }
 
 template <class T>
-void List<T>::update(int ind, T val) {
-    if (ind < 0 || ind > size) {return;}
-
-    Link<T> *p = head;
-    int i = 0;
-    while (i < ind) {
-        p = p->next;
-        i++;
+void List<T>::update(int indice, T dato) {
+    if (indice < 0 || indice >= size) {
+        return;
     }
-    p->value = val;
+
+    Link<T>* actual = head;
+    int posicion = 0;
+    while (posicion < indice) {
+        actual = actual->next;
+        posicion++;
+    }
+    actual->value = dato;
 }
 
 template <class T>
-void List<T>::deleteAt(int ind) {
-    if (ind < 0 || ind > size) {return;}
-    if (ind == 0) {
-        Link<T> *p = head;
-        head = head->next;
-        delete p;
-    } else {
-        Link<T> *p = head;
-        int i = 0;
-        while (i < ind - 1) {
-            p = p->next;
-        }
-        Link<T> *q = p->next;
-        p->next = q->next;
-        delete q;
-        i++;
+void List<T>::deleteAt(int indice) {
+    if (indice < 0 || indice >= size) {
+        return;
     }
-    size --;
+
+    Link<T>* eliminado;
+    if (indice == 0) {
+        eliminado = head;
+        head = head->next;
+    } else {
+        Link<T>* anterior = head;
+        int posicion = 0;
+        while (posicion < indice - 1) {
+            anterior = anterior->next;
+            posicion++;
+        }
+        eliminado = anterior->next;
+        anterior->next = eliminado->next;
+    }
+    delete eliminado;
+    size--;
 }
 
 template <class T>
 string List<T>::toString() const {
-	stringstream aux;
-	Link<T> *p;
-
-	p = head;
-	aux << "[";
-	while (p != 0) {
-		aux << p->value;
-		if (p->next != 0) {
-			aux << ", ";
-		}
-		p = p->next;
-	}
-	aux << "]";
-	return aux.str();
+    stringstream salida;
+    const Link<T>* actual = head;
+    salida << "[";
+    while (actual != 0) {
+        salida << actual->value;
+        if (actual->next != 0) {
+            salida << ", ";
+        }
+        actual = actual->next;
+    }
+    salida << "]";
+    return salida.str();
 }
 
 #endif
